@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automatic To-Do-List Generator</title>
+    <link rel="stylesheet" href="./Frontend/style.css">
+</head>
+<body>
+    <section id="record-audio">
+        <h1 class="title">Record Here</h1>
+        <br>
+        <button id="btn-start-recording" onclick="startRecording()">Start Recording</button>
+        <button id="btn-stop-recording" onclick="stopRecording()" disabled>Stop Recording</button>
+        <!-- <button id="btn-release-microphone" onclick="releaseMicrophone()" disabled>Release Microphone</button> -->
+        <button id="btn-download-recording" onclick="downloadRecording()" disabled>Download</button>  
+        <hr><br>
+        <div><audio controls autoplay playsinline></audio></div>
+    </section>
+
+    <script src="Frontend/record-rtc.js"></script>
+    <script src="Frontend/script.js"></script>
+</body>
+</html>

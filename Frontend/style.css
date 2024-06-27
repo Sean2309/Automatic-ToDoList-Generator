@@ -1,0 +1,30 @@
+/* 
+################################
+GENERAL 
+################################
+*/ 
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+* {/* '*' targets the whole page */
+    margin : 0;
+    padding : 0;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+}
+
+html {
+    scroll-behavior: smooth; /* Helps the browser experience smoother when navigating between pages */
+}
+
+p {
+    color: rgb(85,85,85);
+}
+
+/* 
+################################
+RECORD AUDIO SECTION 
+################################
+*/ 
