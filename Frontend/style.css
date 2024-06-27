@@ -23,8 +23,31 @@ p {
     color: rgb(85,85,85);
 }
 
+a, .btn {
+    transition: all 300ms ease;
+}
+
 /* 
 ################################
 RECORD AUDIO SECTION 
 ################################
-*/ 
+*/
+
+.title {
+    font-size: 3rem;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    gap: 1.5rem;
+    border-radius: 0.5rem;
+}
+
+.btn-container, .audio-container {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 25%;
+}

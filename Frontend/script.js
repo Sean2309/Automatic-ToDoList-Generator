@@ -166,7 +166,7 @@ function downloadRecording() {
     var file = new File([blob], getFileName('mp3'), {
         type: 'audio/mp3'
     });
-    invokeSaveAsDialog(file);
+    // invokeSaveAsDialog(file);
 }
 
 function click(el) {
@@ -176,25 +176,20 @@ function click(el) {
     el.dispatchEvent(evt);
 }
 
-function getRandomString() {
-    if (window.crypto && window.crypto.getRandomValues && navigator.userAgent.indexOf('Safari') === -1) {
-        var a = window.crypto.getRandomValues(new Uint32Array(3)),
-            token = '';
-        for (var i = 0, l = a.length; i < l; i++) {
-            token += a[i].toString(36);
-        }
-        return token;
-    } else {
-        return (Math.random() * new Date().getTime()).toString(36).replace(/\./g, '');
-    }
-}
-
 function getFileName(fileExtension) {
-    var d = new Date();
-    var year = d.getFullYear();
-    var month = d.getMonth();
-    var date = d.getDate();
-    return 'RecordRTC-' + year + month + date + '-' + getRandomString() + '.' + fileExtension;
+    let date = new Date();
+    
+    // Extracting date components
+    let day = String(date.getDate()).padStart(2, '0');
+    let month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+    let year = String(date.getFullYear()).slice(-2); // Getting last two digits of the year
+    
+    // Extracting time components
+    let hours = String(date.getHours()).padStart(2, '0');
+    let minutes = String(date.getMinutes()).padStart(2, '0');
+    let seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${day}-${month}-${year}_${hours}-${minutes}-${seconds}_Audio.${fileExtension}`;
 }
 
 function SaveToDisk(fileURL, fileName) {
