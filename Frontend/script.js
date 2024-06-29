@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     btnStartRecording = document.getElementById('btn-start-recording');
     btnStopRecording = document.getElementById('btn-stop-recording');
     btnDownloadRecording = document.getElementById('btn-download-recording');
+    btnTranscribeRecording = document.getElementById('btn-transcribe-recording');
 });
 
 function captureMicrophone(callback) {
@@ -144,10 +145,12 @@ function startRecording() {
 
     btnStopRecording.disabled = false;
     btnDownloadRecording.disabled = true;
+    btnTranscribeRecording.disabled = true;
 }
 
 function stopRecording() {
     btnStopRecording.disabled = true;
+    btnTranscribeRecording.disabled = false;
     recorder.stopRecording(stopRecordingCallback);
 }
 
@@ -168,6 +171,34 @@ function downloadRecording() {
     });
     // invokeSaveAsDialog(file);
 }
+
+// WIP
+function transcribeRecording() {
+    btnTranscribeRecording.disabled = true;
+
+    // Getting the recording
+    console.log('transcribing the recording now');
+    if (!recorder || !recorder.getBlob()) return;
+
+    // if (isSafari) {
+    //     recorder.getDataURL(function(dataURL) {
+    //         SaveToDisk(dataURL, getFileName('mp3'));
+    //     });
+    //     return;
+    // }
+
+    // var blob = recorder.getBlob();
+    // var file = new File([blob], getFileName('mp3'), {
+    //     type: 'audio/mp3'
+    // });
+
+    var recordedAudio = recorder.getBlob();
+
+    console.log(`Recorded file : ${recorder.getBlob()}`);
+    
+
+    // Saving to local storage
+};
 
 function click(el) {
     el.disabled = false; // make sure that element is not disabled
