@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automatic To-Do-List Generator</title>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+    <section id="record-audio">
+        <h1 class="title">Record Here</h1>
+        <br>
+        <div class="btn-container">
+            <button id="btn-start-recording" class="btn" onclick="startRecording()">Start Recording</button>
+            <button id="btn-stop-recording" class="btn" onclick="stopRecording()" disabled>Stop Recording</button>
+            <button id="btn-download-recording" class="btn" onclick="downloadRecording()" disabled>Download</button>  
+            <button id="btn-transcribe-recording" class="btn" onclick="transcribeRecording()" disabled>Transcribe Recording</button>  
+        </div>
+        <br><br>
+        <div class="audio-playback-container"><audio controls autoplay playsinline></audio></div>
+    </section>
+
+    <section id="audio-display-section">
+        <div class="audio-display-container">
+            <div class="audio-record-container">
+                <h3>Audio Log 1</h3>
+                <div class="btn-container">
+                    <button class="btn display-audio-btn">View Audio</button>
+                    <button class="btn display-audio-btn">Download Audio</button>
+                </div>
+            </div>
+
+            <div class="audio-record-container">
+                <h3>Audio Log 2</h3>
+                <div class="btn-container">
+                    <button class="btn display-audio-btn">View Audio</button>
+                    <button class="btn display-audio-btn">Download Audio</button>
+                </div>
+            </div>
+
+            <div class="audio-record-container">
+                <h3>Audio Log 3</h3>
+                <div class="btn-container">
+                    <button class="btn display-audio-btn">View Audio</button>
+                    <button class="btn display-audio-btn">Download Audio</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="../static/record-rtc.js"></script>
+    <script src="../static/script.js"></script>
+</body>
+</html>

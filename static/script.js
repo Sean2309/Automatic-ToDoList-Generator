@@ -178,26 +178,23 @@ function transcribeRecording() {
 
     // Getting the recording
     console.log('transcribing the recording now');
-    if (!recorder || !recorder.getBlob()) return;
-
-    // if (isSafari) {
-    //     recorder.getDataURL(function(dataURL) {
-    //         SaveToDisk(dataURL, getFileName('mp3'));
-    //     });
-    //     return;
-    // }
-
-    // var blob = recorder.getBlob();
-    // var file = new File([blob], getFileName('mp3'), {
-    //     type: 'audio/mp3'
-    // });
-
-    var recordedAudio = recorder.getBlob();
-
-    console.log(`Recorded file : ${recorder.getBlob()}`);
     
+    var audioReocording = recorder.getBlob();
+    if (!recorder || !audioReocording) return;  
 
     // Saving to local storage
+    var reader = new FileReader();
+    reader.readAsDataURL(audioReocording);
+    reader.onloadend = function() {
+        localStorage.setItem('audioRecording1', reader.result);
+        console.log('added to local storage');
+
+        console.log('retrieving from local storage');
+        console.log(localStorage.getItem('audioRecording1'));
+        localStorage.removeItem('audioRecording1');
+    };
+
+    
 };
 
 function click(el) {
