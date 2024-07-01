@@ -41,13 +41,44 @@ RECORD AUDIO SECTION
 
 .btn {
     padding: 0.5rem 1rem;
-    gap: 1.5rem;
     border-radius: 0.5rem;
 }
 
-.btn-container, .audio-container {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    width: 25%;
+.audio-playback-container {
+    width: 100%;
+}
+
+.audio-playback-container audio {
+    margin: 0 auto;
+    display: table;
+}
+
+.btn-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* 
+################################
+DISPLAY AUDIO SECTION 
+################################
+*/
+
+.audio-display-container {
+    margin-top: 2rem;
+    padding: 0.5rem;
+    border: 0.15rem solid black;
+    border-radius: 0.5rem;
+    /* width: fit-content; */
+}
+
+.audio-record-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    padding-bottom: 1.5rem;
 }
