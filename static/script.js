@@ -170,6 +170,7 @@ function SaveToDisk(fileURL, fileName) {
     }
 }
 
+// TODO: Functional download button
 function injectAudioRecord(id, base64Audio) {
     // Create Container Div
     let containerDiv = document.createElement('div');
@@ -199,7 +200,8 @@ function injectAudioRecord(id, base64Audio) {
     downloadBtn.className = 'btn display-audio-btn';
     downloadBtn.textContent = 'Download Audio';
     downloadBtn.onclick = function() {
-        downloadAudio(base64Audio);
+        // downloadAudio(base64Audio);
+        SaveToDisk(URL.createObjectURL(base64ToBlob(base64Audio)), id);
     };
     btnContainer.appendChild(downloadBtn);
 
