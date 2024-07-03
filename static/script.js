@@ -3,6 +3,7 @@ var recorder; // globally accessible
 var microphone;
 var isEdge, isSafari;
 var btnStartRecording, btnStopRecording, btnDownloadRecording;
+var audioLogs = [];
 
 document.addEventListener('DOMContentLoaded', function() {
     audio = document.querySelector('audio');
@@ -12,13 +13,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
     btnStartRecording = document.getElementById('btn-start-recording');
     btnStopRecording = document.getElementById('btn-stop-recording');
-    btnDownloadRecording = document.getElementById('btn-download-recording');
     btnTranscribeRecording = document.getElementById('btn-transcribe-recording');
     btnClearRecording = document.getElementById('btn-clear-recording');
+
+    // Load existing audio logs from localStorage
+    loadAudioLogsFromLocalStorage();
 });
 
 
+
 // ================================MISC FUNCTIONS START====================================
+function loadAudioLogsFromLocalStorage() {
+    for (let i = 0; i < localStorage.length; i++) {
+        let key = localStorage.key(i);
+        let base64Audio = localStorage.getItem(key);
+        injectAudioRecord(key, base64Audio);
+    }
+}
+
 function captureMicrophone(callback) {
 
     if (microphone) {
@@ -66,8 +78,11 @@ function replaceAudio(src) {
 // Replaces current audio source with new audio source. 
 // Enables other buttons to be clicked
 function stopRecordingCallback() {
-    replaceAudio(URL.createObjectURL(recorder.getBlob()));
-    saveToLocalStorage();
+    var audioBlob = getBlob();
+    replaceAudio(URL.createObjectURL(audioBlob));
+
+    // Saves to Local Storage and Injects the Audio Container HTML
+    saveToLocalStorage(audioBlob);
 
     btnStartRecording.disabled = false;
 
@@ -110,6 +125,21 @@ function getFileName(fileExtension) {
     return `${day}-${month}-${year}_${hours}-${minutes}-${seconds}_Audio.${fileExtension}`;
 }
 
+function getBlob() {
+    return recorder.getBlob();
+}
+
+function saveToLocalStorage(audioBlob) {
+    let reader = new FileReader();
+    reader.readAsDataURL(audioBlob);
+    reader.onloadend = function() {
+        let base64Audio = reader.result;
+        let fileID = getFileName('mp3');
+        localStorage.setItem(fileID, base64Audio);
+        injectAudioRecord(fileID, base64Audio);
+    }
+}
+
 function SaveToDisk(fileURL, fileName) {
     // for non-IE
     if (!window.ActiveXObject) {
@@ -140,28 +170,49 @@ function SaveToDisk(fileURL, fileName) {
     }
 }
 
-function saveToLocalStorage() {
-    console.log(`Recorder : ${recorder}`);
-    var audioRecording = recorder.getBlob();
-    if (!recorder || !audioRecording) return;  
+function injectAudioRecord(id, base64Audio) {
+    // Create Container Div
+    let containerDiv = document.createElement('div');
+    containerDiv.className = 'audio-record-container';
 
-    var reader = new FileReader();
-    var fileName = getFileName('mp3');
-    reader.readAsDataURL(audioRecording);
-    reader.onloadend = function() {
-        var res = reader.result;
-        localStorage.setItem(fileName, res);
+    // Create h3 element
+    let h3 = document.createElement('h3');
+    h3.textContent = `Audio : ${id}`;
+    containerDiv.appendChild(h3);
 
-        console.log(`File Name is: ${fileName}`);
-        // console.log(`Reader result: ${reader.result}`);
+    // Create button container div
+    let btnContainer = document.createElement('div');
+    btnContainer.className = 'btn-container';
+    containerDiv.appendChild(btnContainer);
+
+    // Create View Button
+    let viewBtn = document.createElement('button');
+    viewBtn.className = 'btn display-audio-btn';
+    viewBtn.textContent = 'View Audio';
+    viewBtn.onclick = function() {
+        replaceAudio(base64Audio);
     };
-}
+    btnContainer.appendChild(viewBtn);
 
+    // Create Download Button
+    let downloadBtn = document.createElement('button');
+    downloadBtn.className = 'btn display-audio-btn';
+    downloadBtn.textContent = 'Download Audio';
+    downloadBtn.onclick = function() {
+        downloadAudio(base64Audio);
+    };
+    btnContainer.appendChild(downloadBtn);
+
+    // Inserting audio-record-container div to main container
+    let audioDisplayContainer = document.querySelector('.audio-display-container');
+    document.querySelector('.audio-display-container').insertBefore(containerDiv, audioDisplayContainer.firstChild);
+}
 // ================================MISC FUNCTIONS END====================================
 
 // ================================BTN FUNCTIONS START====================================
 function clearRecording() {
     localStorage.clear();
+    document.querySelector('.audio-display-container').innerHTML = ''; // Clear the displayed audio logs
     console.log('local storage recordings cleared');
 }
 
@@ -238,143 +289,23 @@ function stopRecording() {
     recorder.stopRecording(stopRecordingCallback);
 }
 
-// Download Recording doesn't download right now
-// function downloadRecording() {
-//     btnDownloadRecording.disabled = true;
-//     if (!recorder || !recorder.getBlob()) return;
-
-//     if (isSafari) {
-//         recorder.getDataURL(function(dataURL) {
-//             SaveToDisk(dataURL, getFileName('mp3'));
-//         });
-//         return;
-//     }
-
-//     var blob = recorder.getBlob();
-//     var file = new File([blob], getFileName('mp3'), {
-//         type: 'audio/mp3'
-//     });
-//     // invokeSaveAsDialog(file);
-// }
-
-// WIP
-
-function downloadRecording(audioId) {
-    const audioData = localStorage.getItem(audioId);
-    if (audioData) {
-        const link = document.createElement('a');
-        link.href = audioData;
-        link.download = audioId;
-        link.style.display = 'none';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    } else {
-        console.error('Audio data not found in local storage');
+function downloadAudio(base64Audio) {
+    // Convert base64 to Blob
+    const byteCharacters = atob(base64Audio.split(',')[1]);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
     }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: 'audio/mp3' });
+
+    // Create a download link
+    const a = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
-// function transcribeRecording() {
-//     btnTranscribeRecording.disabled = true;
-
-//     // Getting the recording
-//     console.log('transcribing the recording now');
-    
-//     var audioReocording = recorder.getBlob();
-//     if (!recorder || !audioReocording) return;  
-
-//     // Saving to local storage
-//     var reader = new FileReader();
-//     reader.readAsDataURL(audioReocording);
-//     reader.onloadend = function() {
-//         localStorage.setItem('audioRecording1', reader.result);
-//         console.log('added to local storage');
-
-//         console.log('retrieving from local storage');
-//         console.log(localStorage.getItem('audioRecording1'));
-//         localStorage.removeItem('audioRecording1');
-//     };
-// };
-
-function transcribeRecording() {
-    btnTranscribeRecording.disabled = true;
-
-    console.log('transcribing the recording now');
-
-    // This is to send to the server for transcription purposes => Not implemented yet
-    // TODO **
-    // try {
-    //     let response = fetch('/transcribe', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         },
-    //         body: JSON.stringify({ audio: reader.result })
-    //     });
-
-    //     let data = response.json();
-
-    //     // Update the audio logs array
-    //     updateAudioLogs(reader.result, data.transcription);
-    // } catch (error) {
-    //     console.error('Error:', error);
-    // }
-
-    // Programmatically trigger the click event on a button if needed
-    // const someButton = document.getElementById('some-button-id');
-    // if (someButton) {
-    //     click(someButton);
-    // }
-    
-}
-
-function updateAudioLogs(audioData, transcription) {
-    // Add new log to the beginning of the array
-    audioLogs.unshift({ audioData, transcription });
-
-    // Keep only the last 5 logs
-    if (audioLogs.length > 5) {
-        audioLogs.pop();
-    }
-
-    // Update the UI
-    displayAudioLogs();
-}
-
-function displayAudioLogs() {
-    const container = document.getElementsByClassName('audio-display-container');
-    container.innerHTML = ''; // Clear the container
-
-    if (audioLogs.length > 0) {
-        container.style.display = 'block';
-    } else {
-        container.style.display = 'none';
-    }
-
-    audioLogs.forEach((log, index) => {
-        const logElement = document.createElement('div');
-        logElement.className = 'audio-record-container';
-
-        const audioData = localStorage.getItem(log.id);
-        logElement.innerHTML = `
-            <h3>Audio Log ${index + 1} hee</h3>
-            <audio controls src="${audioData}"></audio>
-            <p>Transcription: ${log.transcription || 'N/A'}</p>
-            <div class="btn-container">
-                <button class="btn display-audio-btn" onclick="viewAudio('${log.id}')">View Audio</button>
-                <button class="btn btn-download-recording" onclick="downloadRecording('${log.id}')">Download Audio</button>
-            </div>
-        `;
-
-        container.appendChild(logElement);
-    });
-}
-
-function viewAudio(audioId) {
-    const audioData = localStorage.getItem(audioId);
-    if (audioData) {
-        replaceAudio(audioData);
-    } else {
-        console.error('Audio data not found in local storage');
-    }
-}
-// ================================BTN FUNCTIONS END====================================
