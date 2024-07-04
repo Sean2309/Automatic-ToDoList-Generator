@@ -129,6 +129,17 @@ function getBlob() {
     return recorder.getBlob();
 }
 
+// Function to convert base64 to Blob
+function base64ToBlob(base64Data) {
+    var byteCharacters = atob(base64Data.split(',')[1]);
+    var byteNumbers = new Array(byteCharacters.length);
+    for (var i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    var byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: 'audio/mpeg' }); // Adjust 'audio/mpeg' to match your audio type
+}
+
 function saveToLocalStorage(audioBlob) {
     let reader = new FileReader();
     reader.readAsDataURL(audioBlob);
@@ -140,37 +151,6 @@ function saveToLocalStorage(audioBlob) {
     }
 }
 
-function SaveToDisk(fileURL, fileName) {
-    // for non-IE
-    if (!window.ActiveXObject) {
-        var save = document.createElement('a');
-        save.href = fileURL;
-        save.download = fileName || 'unknown';
-        save.style = 'display:none;opacity:0;color:transparent;';
-        (document.body || document.documentElement).appendChild(save);
-
-        if (typeof save.click === 'function') {
-            save.click();
-        } else {
-            save.target = '_blank';
-            var event = document.createEvent('Event');
-            event.initEvent('click', true, true);
-            save.dispatchEvent(event);
-        }
-
-        (window.URL || window.webkitURL).revokeObjectURL(save.href);
-    }
-
-    // for IE
-    else if (!!window.ActiveXObject && document.execCommand) {
-        var _window = window.open(fileURL, '_blank');
-        _window.document.close();
-        _window.document.execCommand('SaveAs', true, fileName || fileURL)
-        _window.close();
-    }
-}
-
-// TODO: Functional download button
 function injectAudioRecord(id, base64Audio) {
     // Create Container Div
     let containerDiv = document.createElement('div');
@@ -201,7 +181,8 @@ function injectAudioRecord(id, base64Audio) {
     downloadBtn.textContent = 'Download Audio';
     downloadBtn.onclick = function() {
         // downloadAudio(base64Audio);
-        SaveToDisk(URL.createObjectURL(base64ToBlob(base64Audio)), id);
+        let audioURL = URL.createObjectURL(base64ToBlob(base64Audio));
+        downloadRecording(audioURL, id);
     };
     btnContainer.appendChild(downloadBtn);
 
@@ -291,23 +272,32 @@ function stopRecording() {
     recorder.stopRecording(stopRecordingCallback);
 }
 
-function downloadAudio(base64Audio) {
-    // Convert base64 to Blob
-    const byteCharacters = atob(base64Audio.split(',')[1]);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    const blob = new Blob([byteArray], { type: 'audio/mp3' });
+function downloadRecording(fileURL, fileName) {
+    // for non-IE
+    if (!window.ActiveXObject) {
+        var save = document.createElement('a');
+        save.href = fileURL;
+        save.download = fileName || 'unknown';
+        save.style = 'display:none;opacity:0;color:transparent;';
+        (document.body || document.documentElement).appendChild(save);
 
-    // Create a download link
-    const a = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+        if (typeof save.click === 'function') {
+            save.click();
+        } else {
+            save.target = '_blank';
+            var event = document.createEvent('Event');
+            event.initEvent('click', true, true);
+            save.dispatchEvent(event);
+        }
+
+        (window.URL || window.webkitURL).revokeObjectURL(save.href);
+    }
+
+    // for IE
+    else if (!!window.ActiveXObject && document.execCommand) {
+        var _window = window.open(fileURL, '_blank');
+        _window.document.close();
+        _window.document.execCommand('SaveAs', true, fileName || fileURL)
+        _window.close();
+    }
 }
