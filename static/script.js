@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     btnStartRecording = document.getElementById('btn-start-recording');
     btnStopRecording = document.getElementById('btn-stop-recording');
-    btnTranscribeRecording = document.getElementById('btn-transcribe-recording');
     btnClearRecording = document.getElementById('btn-clear-recording');
 
     // Load existing audio logs from localStorage
@@ -111,8 +110,6 @@ function stopRecordingCallback() {
     }, 300);
 
     audio.play();
-
-    btnTranscribeRecording.disabled = false;
 }
 
 function click(el) {
@@ -189,12 +186,21 @@ function injectAudioRecord(id, base64Audio) {
     };
     btnContainer.appendChild(viewBtn);
 
+    // Create Transcribe Button
+    let transcribeBtn = document.createElement('button');
+    transcribeBtn.className = 'btn display-audio-btn';
+    transcribeBtn.textContent = 'Transcribe Audio';
+    transcribeBtn.onclick = function() {
+        console.log(`Transcribe Btn ${id} Clicked`);
+        transcribeRecording(id);
+    };
+    btnContainer.appendChild(transcribeBtn);
+
     // Create Download Button
     let downloadBtn = document.createElement('button');
     downloadBtn.className = 'btn display-audio-btn';
     downloadBtn.textContent = 'Download Audio';
     downloadBtn.onclick = function() {
-        // downloadAudio(base64Audio);
         let audioURL = URL.createObjectURL(base64ToBlob(base64Audio));
         downloadRecording(audioURL, id);
     };
@@ -278,8 +284,6 @@ function startRecording() {
     recorder.startRecording();
 
     btnStopRecording.disabled = false;
-    // btnDownloadRecording.disabled = true;
-    btnTranscribeRecording.disabled = true;
 }
 
 function stopRecording() {
@@ -315,4 +319,31 @@ function downloadRecording(fileURL, fileName) {
         _window.document.execCommand('SaveAs', true, fileName || fileURL)
         _window.close();
     }
+}
+
+function transcribeRecording(fileName) {
+    // Get audio file to pass to Python script
+    let audioData = localStorage.getItem(fileName);
+
+    // Send audio data to the server
+    fetch('/transcribe', {
+        method: "POST", // Default method is GET, so we need to change
+        body: JSON.stringify({audioData : audioData}), // Data that is being sent
+        headers: {
+            "Content-Type": "application/json"
+        }
+        // Give the server info about request
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log(`Transcription ${fileName} : ${data.transcription}`);
+        }
+        else {
+            console.log('Transcription failed', data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error: ', error);
+    })
 }
