@@ -158,7 +158,7 @@ function saveToLocalStorage(audioBlob) {
     reader.readAsDataURL(audioBlob);
     reader.onloadend = function() {
         let base64Audio = reader.result;
-        let fileID = getFileName('mp3');
+        let fileID = getFileName('wav');
         localStorage.setItem(fileID, base64Audio);
         injectAudioRecord(fileID, base64Audio);
         toggleAudioDisplayContainer();
