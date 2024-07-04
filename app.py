@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 import base64
 import os
 import subprocess
+from modules import generate_todo_from_audio
 
 app = Flask(__name__)
 
@@ -24,18 +25,19 @@ def transcribe():
             audioFile.write(audioBytes)
 
         # Run transcription script TODO: Modify the python path if needed, and conda env
-        result = subprocess.run(
-            ['conda', 'run', '--name', 'tiktokEnv','python', './speechtotext/openaistt.py'],
-            capture_output=True,
-            text=True
-        )
-
+        # result = subprocess.run(
+        #     ['conda', 'run', '--name', 'tiktokEnv','python', './speechtotext/openaistt.py'],
+        #     capture_output=True,
+        #     text=True
+        # )
+        result = None
+        result = generate_todo_from_audio(audioPath)
+        print(result)
         # Remove temp file
         os.remove(audioPath)
 
-        if result.returncode == 0:
-            transcription = result.stdout.strip()
-            return jsonify({'success': True, 'transcription': transcription})
+        if "Error:" not in result:
+            return jsonify({'success': True, 'transcription': result})
         else:
             return jsonify({'success': False, 'error': result.stderr.strip()})
     except Exception as e:
