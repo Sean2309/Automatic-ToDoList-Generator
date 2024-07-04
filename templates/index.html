@@ -13,8 +13,9 @@
         <div class="btn-container">
             <button id="btn-start-recording" class="btn" onclick="startRecording()">Start Recording</button>
             <button id="btn-stop-recording" class="btn" onclick="stopRecording()" disabled>Stop Recording</button>
-            <button id="btn-download-recording" class="btn" onclick="downloadRecording()" disabled>Download</button>  
+            <!-- <button id="btn-download-recording" class="btn" onclick="downloadRecording()" disabled>Download</button>   -->
             <button id="btn-transcribe-recording" class="btn" onclick="transcribeRecording()" disabled>Transcribe Recording</button>  
+            <button id="btn-clear-recording" class="btn" onclick="clearRecording()">Clear Recordings</button>  
         </div>
         <br><br>
         <div class="audio-playback-container"><audio controls autoplay playsinline></audio></div>
@@ -22,29 +23,7 @@
 
     <section id="audio-display-section">
         <div class="audio-display-container">
-            <div class="audio-record-container">
-                <h3>Audio Log 1</h3>
-                <div class="btn-container">
-                    <button class="btn display-audio-btn">View Audio</button>
-                    <button class="btn display-audio-btn">Download Audio</button>
-                </div>
-            </div>
-
-            <div class="audio-record-container">
-                <h3>Audio Log 2</h3>
-                <div class="btn-container">
-                    <button class="btn display-audio-btn">View Audio</button>
-                    <button class="btn display-audio-btn">Download Audio</button>
-                </div>
-            </div>
-
-            <div class="audio-record-container">
-                <h3>Audio Log 3</h3>
-                <div class="btn-container">
-                    <button class="btn display-audio-btn">View Audio</button>
-                    <button class="btn display-audio-btn">Download Audio</button>
-                </div>
-            </div>
+        
         </div>
     </section>
 
