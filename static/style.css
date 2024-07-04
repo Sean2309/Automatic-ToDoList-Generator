@@ -67,6 +67,10 @@ DISPLAY AUDIO SECTION
 ################################
 */
 
+.hidden {
+    display: none;
+}
+
 .audio-display-section {
     align-items: center;
 }

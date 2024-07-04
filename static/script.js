@@ -18,11 +18,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Load existing audio logs from localStorage
     loadAudioLogsFromLocalStorage();
+
+    // Toggling the audio display container : Showing only if there are items in localStorage
+    toggleAudioDisplayContainer();
 });
 
 
 
 // ================================MISC FUNCTIONS START====================================
+function toggleAudioDisplayContainer() {
+    let audioDisplayContainer = document.querySelector('.audio-display-container');
+    if (localStorage.length === 0) {
+        audioDisplayContainer.classList.add('hidden');
+    } 
+    else {
+        audioDisplayContainer.classList.remove('hidden');
+    }
+}
+
 function loadAudioLogsFromLocalStorage() {
     for (let i = 0; i < localStorage.length; i++) {
         let key = localStorage.key(i);
@@ -148,6 +161,7 @@ function saveToLocalStorage(audioBlob) {
         let fileID = getFileName('mp3');
         localStorage.setItem(fileID, base64Audio);
         injectAudioRecord(fileID, base64Audio);
+        toggleAudioDisplayContainer();
     }
 }
 
@@ -197,6 +211,7 @@ function clearRecording() {
     localStorage.clear();
     document.querySelector('.audio-display-container').innerHTML = ''; // Clear the displayed audio logs
     console.log('local storage recordings cleared');
+    toggleAudioDisplayContainer();
 }
 
 function startRecording() {
