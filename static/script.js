@@ -316,3 +316,27 @@ function downloadRecording(fileURL, fileName) {
         _window.close();
     }
 }
+
+async function transcribeRecording() {
+    try {
+        const response = await fetch('/transcribe', {
+            method: 'POST'
+        });
+        const data = await response.json();
+        if (response.ok) {
+            console.log('Transcription:', data.transcription);
+            console.log('Detected Language:', data.detected_language);
+            alert(`Detected Language: ${data.detected_language}\nTranscription: ${data.transcription}`);
+        } else {
+            console.error('Error:', data.error);
+            alert('Error running transcription: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error: ' + error.message);
+    }
+
+
+
+
+}

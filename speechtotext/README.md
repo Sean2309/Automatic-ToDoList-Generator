@@ -1,3 +1,9 @@
+Create a venv
+
+```bash
+python -m venv <myenvname>
+```
+
 Install the packages
 
 ```bash
