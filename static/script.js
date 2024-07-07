@@ -1,7 +1,7 @@
 var audio;
 var recorder; // globally accessible
 var microphone;
-var isEdge, isSafari;
+var isEdge, isSafari, isChrome;
 var btnStartRecording, btnStopRecording, btnDownloadRecording;
 var audioLogs = [];
 
@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     isEdge = navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveOrOpenBlob || !!navigator.msSaveBlob);
     isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
 
     btnStartRecording = document.getElementById('btn-start-recording');
     btnStopRecording = document.getElementById('btn-stop-recording');
@@ -255,12 +256,13 @@ function startRecording() {
 
     var options = {
         type: 'audio',
+        mimeType: 'audio/wav',
         numberOfAudioChannels: isEdge ? 1 : 2,
         checkForInactiveTracks: true,
         bufferSize: 16384
     };
 
-    if (isSafari || isEdge) {
+    if (isSafari || isEdge || isChrome) {
         options.recorderType = StereoAudioRecorder;
     }
 
@@ -324,7 +326,6 @@ function downloadRecording(fileURL, fileName) {
 function transcribeRecording(fileName) {
     // Get audio file to pass to Python script
     let audioData = localStorage.getItem(fileName);
-
     // Send audio data to the server
     fetch('/transcribe', {
         method: "POST", // Default method is GET, so we need to change

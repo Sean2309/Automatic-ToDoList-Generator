@@ -21,13 +21,13 @@ def transcribe_audio(audio_path):
         print(f'audio path exists: {audio_path}')
 
     # Load the audio file using wave module
-    with wave.open(audio_path, 'rb') as wav_file:
-        framerate = wav_file.getframerate()
-        audio_data = wav_file.readframes(wav_file.getnframes())
+    # with wave.open(audio_path, 'rb') as wav_file:
+    #     framerate = wav_file.getframerate()
+    #     audio_data = wav_file.readframes(wav_file.getnframes())
 
     # Load audio data into whisper
-    audio = whisper.Audio(audio_data, sample_rate=framerate)
-
+    # audio = whisper.Audio(audio_data, sample_rate=framerate)
+    audio_data = whisper.load_audio(audio_path)
     # with open(audio_path, 'rb') as f:
     #     audio_data = f.read()
     # audio_data = whisper.load_audio(audio_path)
@@ -48,7 +48,8 @@ def transcribe_audio(audio_path):
 # Download llama from https://ollama.com/download
 # Download llama3 model after opening the application
 def generate_todo(transcribedText):
-    print('Entering generate to do function', file=sys.err)
+    # print('Entering generate to do function', file=sys.err)
+    print('Entering generate to do function')
     url = "http://localhost:11434/api/generate"
     headers = {
     "Content-Type": "application/json",

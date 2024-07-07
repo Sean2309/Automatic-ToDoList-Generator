@@ -18,10 +18,10 @@ def transcribe():
     try:
         # Get audio data from request
         audioData = request.json.get('audioData')
-
+        print(f"Audio Data: {audioData[0:100]}")
         # Strip data URL prefix if present
-        if audioData.startswith('data:audio/webm;codecs=opus;base64,'):
-            audioData = audioData.replace('data:audio/webm;codecs=opus;base64,', '')
+        if audioData.startswith('data:audio/wav;base64,'):
+            audioData = audioData.replace('data:audio/wav;base64,', '')
 
         # Add Padding 
         base64_audio = add_padding(audioData)
@@ -53,7 +53,7 @@ def transcribe():
         # Perform transcription using the modules.py function
         transcription = generate_todo_from_audio(audioPath)
         os.remove(audioPath)
-        return jsonify({"transcription": transcription})
+        return jsonify({'success': True, 'transcription': transcription})
         # print(f"Audio Path: {audioPath}")
         # result = None
         # result = generate_todo_from_audio(audioPath)
