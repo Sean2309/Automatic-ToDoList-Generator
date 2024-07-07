@@ -1,8 +1,12 @@
 import whisper
 import requests
 import json
+import sys
+import os
+import wave
 
 def generate_todo_from_audio(audio_path):
+    print('generating to do')
     transcribedText = transcribe_audio(audio_path)
     todo = generate_todo(transcribedText)
     return todo
@@ -10,9 +14,26 @@ def generate_todo_from_audio(audio_path):
 # https://pypi.org/project/openai-whisper/
 def transcribe_audio(audio_path):
     model = whisper.load_model("base")
-    # load audio and trim it to fit 30 seconds
-    audio = whisper.load_audio("speechtotext/aiaudio.mp3")
-    audio = whisper.pad_or_trim(audio)
+
+    # audio = whisper.load_audio("./aiaudio.wav")
+    audio_path = os.path.join(os.getcwd(), 'temp-audio.wav')
+    if (os.path.exists(audio_path)):
+        print(f'audio path exists: {audio_path}')
+
+    # Load the audio file using wave module
+    with wave.open(audio_path, 'rb') as wav_file:
+        framerate = wav_file.getframerate()
+        audio_data = wav_file.readframes(wav_file.getnframes())
+
+    # Load audio data into whisper
+    audio = whisper.Audio(audio_data, sample_rate=framerate)
+
+    # with open(audio_path, 'rb') as f:
+    #     audio_data = f.read()
+    # audio_data = whisper.load_audio(audio_path)
+    # Adding padding
+    audio = whisper.pad_or_trim(audio_data)
+    print('audio padded or trimmed')
     # make log-mel spectrogram
     mel = whisper.log_mel_spectrogram(audio).to(model.device)
     # detect language
@@ -27,6 +48,7 @@ def transcribe_audio(audio_path):
 # Download llama from https://ollama.com/download
 # Download llama3 model after opening the application
 def generate_todo(transcribedText):
+    print('Entering generate to do function', file=sys.err)
     url = "http://localhost:11434/api/generate"
     headers = {
     "Content-Type": "application/json",
