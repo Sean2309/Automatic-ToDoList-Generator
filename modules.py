@@ -56,7 +56,6 @@ def transcribe_audio(audio_path):
 # Download llama from https://ollama.com/download
 # Download llama3 model after opening the application
 def generate_todo_code(transcribedText):
-    transcribedText = "i need to pick up my son this monday at 2pm, and then get groceries after that at 3pm"
     # print('Entering generate to do function', file=sys.err)
     print('Entering generate to do function')
     url = "http://localhost:11434/api/generate"
