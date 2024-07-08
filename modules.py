@@ -1,14 +1,22 @@
 import whisper
 import requests
 import json
-import sys
+import regex
 import os
-import wave
+import datetime
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+
+# If modifying these scopes, delete the file token.json.
+SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 
 def generate_todo_from_audio(audio_path):
     print('generating to do')
     transcribedText = transcribe_audio(audio_path)
-    todo = generate_todo(transcribedText)
+    todo = generate_todo_code(transcribedText)
     return todo
 
 # https://pypi.org/project/openai-whisper/
@@ -47,7 +55,8 @@ def transcribe_audio(audio_path):
 
 # Download llama from https://ollama.com/download
 # Download llama3 model after opening the application
-def generate_todo(transcribedText):
+def generate_todo_code(transcribedText):
+    transcribedText = "i need to pick up my son this monday at 2pm, and then get groceries after that at 3pm"
     # print('Entering generate to do function', file=sys.err)
     print('Entering generate to do function')
     url = "http://localhost:11434/api/generate"
@@ -56,7 +65,7 @@ def generate_todo(transcribedText):
     }
     data = {
     "model": "llama3",
-    "prompt": transcribedText,
+    "prompt": "If it makes sense to make a todolist out of the following:'" + transcribedText + "' generate a google calendar python api code, just the event json portion. If not, just say 'NIL' and do not elaborate. Just for your information, the current date and time is:" + str(datetime.datetime.now()),
     "stream": False,
     }
 
@@ -65,6 +74,47 @@ def generate_todo(transcribedText):
         response_text = response.text
         data = json.loads(response_text)
         actual_response = data["response"]
-        return actual_response
+        # Regular expression to extract JSON part
+        json_pattern = regex.compile(r'\{(?:[^{}]|(?R))*\}')
+        json_match = json_pattern.findall(actual_response)
+
+        if json_match:
+            print(json_match)
+            # generate_google_cal(json_match)
+            return json_match
+        else:
+            print("No JSON found in the text")
+            return None
     else:
         return f"Error: {response.status_code}, {response.text}"
+
+def generate_google_cal(response):
+    creds = None
+    # The file token.json stores the user's access and refresh tokens, and is
+    # created automatically when the authorization flow completes for the first
+    # time.
+    if os.path.exists("token.json"):
+        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+    # If there are no (valid) credentials available, let the user log in.
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                "credentials.json", SCOPES
+            )
+            creds = flow.run_local_server(port=0)
+            # Save the credentials for the next run
+            with open("token.json", "w") as token:
+                token.write(creds.to_json())
+
+    try:
+        service = build("calendar", "v3", credentials=creds)
+        for json_str in response:
+            event_data = json.loads(json_str)
+            event = service.events().insert(calendarId="primary", body=event_data).execute()
+            print('Event created: %s' % (event.get('htmlLink')))
+    except HttpError as error:
+        return f"Error: {error}"
+    except json.JSONDecodeError as e:
+        return f"Failed to decode JSON: {e}"
